@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { PropsWithChildren, useMemo } from 'react';
+import { PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import type { IStep } from '@chainlit/react-client';
 
@@ -24,6 +24,12 @@ export default function Step({
   const using = useMemo(() => {
     return isRunning && step.start && !step.end && !step.isError;
   }, [step, isRunning]);
+
+  const [isOpen, setIsOpen] = useState(step.defaultOpen);
+
+  useEffect(() => {
+    if (!isRunning && step.end) setIsOpen(false);
+  }, [isRunning, step.end]);
 
   const hasContent = step.input || step.output || step.steps?.length;
   const isError = step.isError;
@@ -61,7 +67,8 @@ export default function Step({
       <Accordion
         type="single"
         collapsible
-        defaultValue={step.defaultOpen ? step.id : undefined}
+        value={isOpen ? step.id : undefined}
+        onValueChange={(val) => setIsOpen(val === step.id)}
         className="w-full"
       >
         <AccordionItem value={step.id} className="border-none">
